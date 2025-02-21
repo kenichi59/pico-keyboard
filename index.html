@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pico入力システム</title>
+    <script>
+        async function sendData() {
+            const text = document.getElementById("inputText").value;
+            try {
+                const port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 115200 });
+                
+                const writer = port.writable.getWriter();
+                const encoder = new TextEncoder();
+                await writer.write(encoder.encode(text + "\n"));
+                writer.releaseLock();
+
+                document.getElementById("inputText").value = ""; // 送信後にクリア
+            } catch (error) {
+                alert("シリアル通信エラー: " + error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>Pico 文字入力システム</h2>
+    <textarea id="inputText" rows="4" cols="30" placeholder="ここに文字を入力"></textarea>
+    <br>
+    <button onclick="sendData()">送信</button>
+</body>
+</html>
